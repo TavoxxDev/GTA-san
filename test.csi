@@ -1,0 +1,91 @@
+// Tank Spawn Mod - CSI Format
+// Quando bater em NPC, spawna tanque 10m à frente
+
+const
+    TANK_MODEL = 432  // Rhino tank
+    SPAWN_DISTANCE = 10.0
+    COOLDOWN_TIME = 60
+end
+
+var
+    int cooldown
+    int lastVictim
+    int targetActor
+    float playerX playerY playerZ
+    float playerAngle
+    float spawnX spawnY spawnZ
+    float offsetX offsetY
+    int tankCar
+end
+
+thread "TANK"
+
+:INIT
+wait 0
+if
+    Player.Defined($PLAYER_CHAR)
+else_jump @INIT
+
+cooldown = 0
+lastVictim = 0
+
+:MAIN_LOOP
+wait 0
+
+// Reduz cooldown
+if
+    cooldown > 0
+then
+    cooldown -= 1
+end
+
+// Verifica se player atacou alguém
+if and
+    cooldown == 0
+    Player.TargetedActor($PLAYER_CHAR, targetActor)
+then
+    if
+        targetActor > 0
+    then
+        // Evita spawnar múltiplas vezes para o mesmo NPC
+        if
+            targetActor <> lastVictim
+        then
+            lastVictim = targetActor
+            gosub @SPAWN_TANK
+            cooldown = COOLDOWN_TIME
+            03E5: text_box 'TANK SPAWNED!'
+        end
+    end
+end
+
+jump @MAIN_LOOP
+
+:SPAWN_TANK
+// Pega posição e ângulo do player
+Actor.StorePos($PLAYER_ACTOR, playerX, playerY, playerZ)
+Actor.Angle($PLAYER_ACTOR) = playerAngle
+
+// Calcula posição 10m à frente
+playerAngle -= 90.0
+offsetX = SPAWN_DISTANCE * sin(playerAngle)
+offsetY = SPAWN_DISTANCE * cos(playerAngle)
+
+spawnX = playerX + offsetX
+spawnY = playerY + offsetY
+spawnZ = playerZ
+
+// Ajusta para o chão
+0395: clear_area 1 at spawnX spawnY spawnZ radius 10.0
+02CE: spawnZ = ground_z_at spawnX spawnY spawnZ
+spawnZ += 0.5
+
+// Cria o tanque
+Car.Create(tankCar, TANK_MODEL, spawnX, spawnY, spawnZ)
+playerAngle += 90.0
+Car.Angle(tankCar) = playerAngle
+
+return
+
+end_thread
+
