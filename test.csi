@@ -1,30 +1,18 @@
 {$CLEO .csi}
 
-:START
-wait 0
-if
-Actor.Defined($PLAYER_ACTOR)
-jf @START
-
-0@ = 0
-
 :MAIN
 wait 0
 
 if
-and
 Actor.Defined($PLAYER_ACTOR)
-0@ == 0
 then
+    0470: 0@ = actor $PLAYER_ACTOR current_weapon
     if
-    Actor.Animation($PLAYER_ACTOR) == "FIGHT_SHADOWBOX"
+    0@ == 0
     then
-        0470: 1@ = actor $PLAYER_ACTOR current_weapon
         if
-        1@ == 0
+        Actor.Animation($PLAYER_ACTOR) == "FIGHT_SHADOWBOX"
         then
-            0@ = 1
-
             Model.Load(#RHINO)
             :LOAD
             wait 0
@@ -32,13 +20,12 @@ then
             not Model.Available(#RHINO)
             jf @LOAD
 
-            04C4: store_coords_to 2@ 3@ 4@ from_actor $PLAYER_ACTOR with_offset 0.0 6.0 0.5
-            00A5: 5@ = create_car #RHINO at 2@ 3@ 4@
+            04C4: store_coords_to 1@ 2@ 3@ from_actor $PLAYER_ACTOR with_offset 0.0 6.0 0.5
+            00A5: create_car #RHINO at 1@ 2@ 3@
 
             Model.Release(#RHINO)
 
             wait 3000
-            0@ = 0
         end
     end
 end
