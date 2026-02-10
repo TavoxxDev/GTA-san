@@ -1,42 +1,46 @@
 {$CLEO .csi}
 
-// Versão 3 - Estabilidade Máxima para Android
-// Sem comentários internos, sem strings, sem opcodes instáveis
-
-:1
+:START
 wait 0
 if
-Player.Defined(0)
-jf @1
+Actor.Defined($PLAYER_ACTOR)
+jf @START
 
-:2
+0@ = 0
+
+:MAIN
 wait 0
-// Verifica se o jogador está atacando (Botão de soco/fogo)
+
 if
-00E1: player 0 pressed_key 17
+and
+Actor.Defined($PLAYER_ACTOR)
+0@ == 0
 then
-    // Verifica se está desarmado (Slot 0)
-    0470: 1@ = actor $PLAYER_ACTOR current_weapon
     if
-    1@ == 0
+    Actor.Animation($PLAYER_ACTOR) == "FIGHT_SHADOWBOX"
     then
-        // Carregamento seguro do modelo
-        Model.Load(#RHINO)
-        :3
-        wait 0
+        0470: 1@ = actor $PLAYER_ACTOR current_weapon
         if
-        Model.Available(#RHINO)
-        jf @3
-        
-        // Spawn com offset seguro e sem detecção de NPC (evita crash)
-        04C4: store_coords_to 2@ 3@ 4@ from_actor $PLAYER_ACTOR with_offset 0.0 7.0 0.5
-        00A5: 5@ = create_car #RHINO at 2@ 3@ 4@
-        
-        // Limpeza de memória imediata
-        Model.Release(#RHINO)
-        
-        // Delay longo para o Android processar o spawn
-        wait 3000
+        1@ == 0
+        then
+            0@ = 1
+
+            Model.Load(#RHINO)
+            :LOAD
+            wait 0
+            if
+            not Model.Available(#RHINO)
+            jf @LOAD
+
+            04C4: store_coords_to 2@ 3@ 4@ from_actor $PLAYER_ACTOR with_offset 0.0 6.0 0.5
+            00A5: 5@ = create_car #RHINO at 2@ 3@ 4@
+
+            Model.Release(#RHINO)
+
+            wait 3000
+            0@ = 0
+        end
     end
 end
-goto @2
+
+jump @MAIN
