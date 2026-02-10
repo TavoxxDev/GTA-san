@@ -4,7 +4,7 @@
 wait 0
 
 if
-Actor.Defined($PLAYER_ACTOR)
+056D: actor $PLAYER_ACTOR defined
 then
     0470: 0@ = actor $PLAYER_ACTOR current_weapon
     if
