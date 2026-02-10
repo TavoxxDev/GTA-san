@@ -3,28 +3,40 @@
 :MAIN
 wait 0
 
+// Verifica se o player está definido
 if
-056D: actor $PLAYER_ACTOR defined
+0256: player $PLAYER_CHAR defined
 then
+
+    // Verifica arma atual (slot vazio = 0)
     0470: 0@ = actor $PLAYER_ACTOR current_weapon
     if
     0@ == 0
     then
+
+        // Verifica animação de soco (pressionando “fogo” depende da versão)
         if
-        Actor.Animation($PLAYER_ACTOR) == "FIGHT_SHADOWBOX"
+        0AD2: 1@ = player $PLAYER_CHAR targeted_actor // usa target como “botão fogo”
         then
+
+            // Carrega modelo
             Model.Load(#RHINO)
-            :LOAD
+            :WAITLOAD
             wait 0
             if
             not Model.Available(#RHINO)
-            jf @LOAD
+            jf @WAITLOAD
 
-            04C4: store_coords_to 1@ 2@ 3@ from_actor $PLAYER_ACTOR with_offset 0.0 6.0 0.5
+            // Calcula coordenadas à frente do player
+            04C4: store_coords_to 1@ 2@ 3@ from_actor $PLAYER_ACTOR with_offset 0.0 7.0 0.5
+
+            // Cria veículo
             00A5: create_car #RHINO at 1@ 2@ 3@
 
+            // Libera modelo
             Model.Release(#RHINO)
 
+            // Delay para evitar spam
             wait 3000
         end
     end
