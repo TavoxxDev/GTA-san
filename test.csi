@@ -6,31 +6,28 @@ wait 0
 if
 0256: player $PLAYER_CHAR defined
 then
-    00A1: 0@ = actor $PLAYER_ACTOR exists
+    0470: 1@ = actor $PLAYER_ACTOR current_weapon
     if
-    0@ == 1
+    1@ == 0
     then
-        0470: 1@ = actor $PLAYER_ACTOR current_weapon
+        0611: actor $PLAYER_ACTOR performing_animation "FIGHT_SHADOWBOX"
         if
-        1@ == 0
+        true
         then
-            0611: actor $PLAYER_ACTOR performing_animation "FIGHT_SHADOWBOX"
-            if
-            true
-            then
-                0247: load_model #RHINO
-                :LOAD
-                wait 0
-                0248: model #RHINO available
-                jf @LOAD
+            0247: load_model #RHINO
+            :LOAD
+            wait 0
+            0248: model #RHINO available
+            jf @LOAD
 
-                04C4: store_coords_to 2@ 3@ 4@ from_actor $PLAYER_ACTOR with_offset 0.0 7.0 0.5
-                00A5: create_car #RHINO at 2@ 3@ 4@
+            04C4: store_coords_to 2@ 3@ 4@ from_actor $PLAYER_ACTOR with_offset 0.0 7.0 0.5
+            0172: 5@ = actor $PLAYER_ACTOR z_angle
 
-                0249: release_model #RHINO
+            00A5: create_car #RHINO at 2@ 3@ 4@ angle 5@
 
-                wait 3000
-            end
+            0249: release_model #RHINO
+
+            wait 3000
         end
     end
 end
